@@ -1,1 +1,1 @@
-web: gunicorn noteshub.wsgi:application --bind 0.0.0.0:$PORT 
+web: bash build.sh && gunicorn noteshub.wsgi:application --bind 0.0.0.0:$PORT 
