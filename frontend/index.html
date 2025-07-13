@@ -755,5 +755,552 @@
     <div id="notificationContainer" class="notification-container"></div>
 
     <script src="{% static 'script.js' %}"></script>
+    
+    <!-- Internal JavaScript for immediate functionality -->
+    <script>
+        // API Configuration
+        const API_BASE_URL = 'https://noteshub-web.onrender.com/api';
+
+        // Global state
+        let currentUser = null;
+        let accessToken = null;
+
+        // DOM Elements
+        const loginBtn = document.getElementById('loginBtn');
+        const loginModal = document.getElementById('loginModal');
+        const registerModal = document.getElementById('registerModal');
+        const closeModal = document.getElementById('closeModal');
+        const closeRegisterModal = document.getElementById('closeRegisterModal');
+        const showRegisterLink = document.getElementById('showRegister');
+        const showLoginLink = document.getElementById('showLogin');
+        const navToggle = document.getElementById('navToggle');
+        const navMenu = document.getElementById('navMenu');
+
+        // Navigation
+        const navLinks = document.querySelectorAll('.nav-link');
+        const sections = document.querySelectorAll('.section');
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeApp();
+        });
+
+        function initializeApp() {
+            // Check if user is already logged in
+            const savedToken = localStorage.getItem('accessToken');
+            if (savedToken) {
+                accessToken = savedToken;
+                loadUserProfile();
+                updateUIForLoggedInUser();
+            }
+
+            // Event listeners
+            setupEventListeners();
+            
+            // Load initial data
+            loadNotes();
+        }
+
+        function setupEventListeners() {
+            // Login modal
+            loginBtn.addEventListener('click', () => loginModal.style.display = 'block');
+            closeModal.addEventListener('click', () => loginModal.style.display = 'none');
+            closeRegisterModal.addEventListener('click', () => registerModal.style.display = 'none');
+            
+            window.addEventListener('click', (e) => {
+                if (e.target === loginModal) loginModal.style.display = 'none';
+                if (e.target === registerModal) registerModal.style.display = 'none';
+            });
+
+            // Authentication
+            document.getElementById('loginBtn').addEventListener('click', login);
+            document.getElementById('registerBtn').addEventListener('click', register);
+            
+            if (showRegisterLink) {
+                showRegisterLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    loginModal.style.display = 'none';
+                    registerModal.style.display = 'block';
+                });
+            }
+            
+            if (showLoginLink) {
+                showLoginLink.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    registerModal.style.display = 'none';
+                    loginModal.style.display = 'block';
+                });
+            }
+
+            // Navigation
+            navLinks.forEach(link => {
+                link.addEventListener('click', (e) => {
+                    e.preventDefault();
+                    const targetId = link.getAttribute('href').substring(1);
+                    showSection(targetId);
+                    
+                    // Close mobile menu
+                    if (navMenu) navMenu.classList.remove('active');
+                });
+            });
+
+            // Mobile navigation
+            if (navToggle) {
+                navToggle.addEventListener('click', () => {
+                    navMenu.classList.toggle('active');
+                });
+            }
+
+            // Hero actions
+            const getStartedBtn = document.getElementById('getStartedBtn');
+            if (getStartedBtn) {
+                getStartedBtn.addEventListener('click', () => {
+                    showSection('notes');
+                    if (!currentUser) {
+                        loginModal.style.display = 'block';
+                    }
+                });
+            }
+
+            const learnMoreBtn = document.getElementById('learnMoreBtn');
+            if (learnMoreBtn) {
+                learnMoreBtn.addEventListener('click', () => {
+                    showSection('dashboard');
+                });
+            }
+        }
+
+        // Navigation
+        function showSection(sectionId) {
+            sections.forEach(section => section.classList.remove('active'));
+            navLinks.forEach(link => link.classList.remove('active'));
+            
+            const targetSection = document.getElementById(sectionId);
+            const targetLink = document.querySelector(`[href="#${sectionId}"]`);
+            
+            if (targetSection) targetSection.classList.add('active');
+            if (targetLink) targetLink.classList.add('active');
+
+            // Load section-specific data
+            switch(sectionId) {
+                case 'notes':
+                    loadNotes();
+                    break;
+                case 'dashboard':
+                    loadDashboard();
+                    break;
+                case 'wishlist':
+                    loadWishlist();
+                    break;
+                case 'profile':
+                    loadUserProfile();
+                    break;
+            }
+        }
+
+        // Authentication
+        async function login() {
+            const phone = document.getElementById('phone').value;
+            const password = document.getElementById('password').value;
+
+            if (!phone || !password) {
+                showNotification('Please enter both phone number and password', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/login/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    accessToken = data.tokens.access;
+                    currentUser = data.user;
+                    
+                    // Save token
+                    localStorage.setItem('accessToken', accessToken);
+                    
+                    // Update UI
+                    updateUIForLoggedInUser();
+                    loginModal.style.display = 'none';
+                    
+                    // Clear form
+                    document.getElementById('phone').value = '';
+                    document.getElementById('password').value = '';
+                    
+                    showNotification('Login successful!', 'success');
+                } else {
+                    const error = await response.json();
+                    showNotification(error.error || 'Login failed', 'error');
+                }
+            } catch (error) {
+                showNotification('Network error. Please try again.', 'error');
+            }
+        }
+
+        async function register() {
+            const phone = document.getElementById('regPhone').value;
+            const name = document.getElementById('regName').value;
+            const password = document.getElementById('regPassword').value;
+            const confirmPassword = document.getElementById('regConfirmPassword').value;
+
+            if (!phone || !name || !password || !confirmPassword) {
+                showNotification('Please fill all fields', 'error');
+                return;
+            }
+
+            if (password !== confirmPassword) {
+                showNotification('Passwords do not match', 'error');
+                return;
+            }
+
+            try {
+                const response = await fetch(`${API_BASE_URL}/register/`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ phone, name, password })
+                });
+
+                if (response.ok) {
+                    const data = await response.json();
+                    accessToken = data.tokens.access;
+                    currentUser = data.user;
+                    
+                    // Save token
+                    localStorage.setItem('accessToken', accessToken);
+                    
+                    // Update UI
+                    updateUIForLoggedInUser();
+                    registerModal.style.display = 'none';
+                    
+                    // Clear form
+                    document.getElementById('regPhone').value = '';
+                    document.getElementById('regName').value = '';
+                    document.getElementById('regPassword').value = '';
+                    document.getElementById('regConfirmPassword').value = '';
+                    
+                    showNotification('Registration successful!', 'success');
+                } else {
+                    const error = await response.json();
+                    showNotification(error.error || 'Registration failed', 'error');
+                }
+            } catch (error) {
+                showNotification('Network error. Please try again.', 'error');
+            }
+        }
+
+        function updateUIForLoggedInUser() {
+            // Hide login button, show user menu
+            if (loginBtn) loginBtn.style.display = 'none';
+            
+            // Add logout button
+            const navMenu = document.querySelector('.nav-menu');
+            if (navMenu && !document.getElementById('logoutBtn')) {
+                const logoutBtn = document.createElement('button');
+                logoutBtn.id = 'logoutBtn';
+                logoutBtn.className = 'login-btn';
+                logoutBtn.innerHTML = '<i class="fas fa-sign-out-alt"></i> Logout';
+                logoutBtn.addEventListener('click', logout);
+                navMenu.appendChild(logoutBtn);
+            }
+        }
+
+        function logout() {
+            localStorage.removeItem('accessToken');
+            accessToken = null;
+            currentUser = null;
+            
+            // Update UI
+            if (loginBtn) loginBtn.style.display = 'block';
+            const logoutBtn = document.getElementById('logoutBtn');
+            if (logoutBtn) logoutBtn.remove();
+            
+            showNotification('Logged out successfully', 'success');
+        }
+
+        // API Helper
+        async function apiRequest(endpoint, options = {}) {
+            const url = `${API_BASE_URL}${endpoint}`;
+            const config = {
+                headers: {
+                    'Content-Type': 'application/json',
+                    ...options.headers
+                },
+                ...options
+            };
+
+            if (accessToken) {
+                config.headers.Authorization = `Bearer ${accessToken}`;
+            }
+
+            try {
+                const response = await fetch(url, config);
+                if (response.ok) {
+                    return await response.json();
+                } else {
+                    throw new Error(`HTTP ${response.status}`);
+                }
+            } catch (error) {
+                console.error('API Error:', error);
+                throw error;
+            }
+        }
+
+        // Load Notes
+        async function loadNotes() {
+            try {
+                const notes = await apiRequest('/notes/');
+                displayNotes(notes.results || notes);
+            } catch (error) {
+                showNotification('Failed to load notes', 'error');
+            }
+        }
+
+        function displayNotes(notes) {
+            const notesGrid = document.querySelector('.notes-grid');
+            if (!notesGrid) return;
+
+            if (notes.length === 0) {
+                notesGrid.innerHTML = '<div class="empty-state"><i class="fas fa-book"></i><h3>No notes found</h3><p>Be the first to add a note!</p></div>';
+                return;
+            }
+
+            notesGrid.innerHTML = notes.map(note => createNoteCard(note)).join('');
+        }
+
+        function createNoteCard(note) {
+            const price = note.is_free ? 'Free' : `₹${note.price}`;
+            const priceClass = note.is_free ? 'free' : '';
+            
+            return `
+                <div class="note-card">
+                    <div class="note-header">
+                        <h3 class="note-title">${note.title}</h3>
+                        <span class="note-price ${priceClass}">${price}</span>
+                    </div>
+                    <div class="note-subject">
+                        <i class="fas fa-graduation-cap"></i>
+                        ${note.subject?.name || 'Unknown Subject'}
+                    </div>
+                    <p class="note-description">${note.description.substring(0, 100)}...</p>
+                    <div class="note-meta">
+                        <span><i class="fas fa-user"></i> ${note.seller?.name || 'Unknown'}</span>
+                        <span><i class="fas fa-calendar"></i> ${formatDate(note.created_at)}</span>
+                    </div>
+                    <div class="note-actions">
+                        <button class="btn btn-primary btn-sm" onclick="contactSeller('${note.contact_info}')">
+                            <i class="fas fa-phone"></i> Contact
+                        </button>
+                        <button class="btn btn-outline btn-sm" onclick="addToWishlist('${note.id}')">
+                            <i class="fas fa-heart"></i> Wishlist
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load Dashboard
+        async function loadDashboard() {
+            if (!accessToken) {
+                showNotification('Please login to view dashboard', 'error');
+                return;
+            }
+
+            try {
+                const stats = await apiRequest('/dashboard/stats/');
+                displayDashboardStats(stats);
+            } catch (error) {
+                showNotification('Failed to load dashboard', 'error');
+            }
+        }
+
+        function displayDashboardStats(stats) {
+            const dashboardContent = document.querySelector('.dashboard-content');
+            if (!dashboardContent) return;
+
+            dashboardContent.innerHTML = `
+                <div class="dashboard-grid">
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-book"></i> Notes Created</h3>
+                        <p>${stats.notes_created || 0}</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-heart"></i> Wishlist Items</h3>
+                        <p>${stats.wishlist_count || 0}</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-star"></i> Average Rating</h3>
+                        <p>${stats.average_rating || 'N/A'}</p>
+                    </div>
+                    <div class="dashboard-card">
+                        <h3><i class="fas fa-eye"></i> Total Views</h3>
+                        <p>${stats.total_views || 0}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load Wishlist
+        async function loadWishlist() {
+            if (!accessToken) {
+                showNotification('Please login to view wishlist', 'error');
+                return;
+            }
+
+            try {
+                const wishlist = await apiRequest('/wishlist/');
+                displayWishlist(wishlist);
+            } catch (error) {
+                showNotification('Failed to load wishlist', 'error');
+            }
+        }
+
+        function displayWishlist(wishlist) {
+            const wishlistGrid = document.querySelector('.wishlist-grid');
+            if (!wishlistGrid) return;
+
+            if (wishlist.length === 0) {
+                wishlistGrid.innerHTML = '<div class="empty-state"><i class="fas fa-heart"></i><h3>No wishlist items</h3><p>Add some notes to your wishlist!</p></div>';
+                return;
+            }
+
+            wishlistGrid.innerHTML = wishlist.map(item => createWishlistCard(item)).join('');
+        }
+
+        function createWishlistCard(item) {
+            return `
+                <div class="note-card">
+                    <div class="note-header">
+                        <h3 class="note-title">${item.note.title}</h3>
+                        <span class="note-price ${item.note.is_free ? 'free' : ''}">${item.note.is_free ? 'Free' : `₹${item.note.price}`}</span>
+                    </div>
+                    <div class="note-subject">
+                        <i class="fas fa-graduation-cap"></i>
+                        ${item.note.subject?.name || 'Unknown Subject'}
+                    </div>
+                    <p class="note-description">${item.note.description.substring(0, 100)}...</p>
+                    <div class="note-actions">
+                        <button class="btn btn-primary btn-sm" onclick="contactSeller('${item.note.contact_info}')">
+                            <i class="fas fa-phone"></i> Contact
+                        </button>
+                        <button class="btn btn-danger btn-sm" onclick="removeFromWishlist('${item.id}')">
+                            <i class="fas fa-trash"></i> Remove
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Load User Profile
+        async function loadUserProfile() {
+            if (!accessToken) {
+                showNotification('Please login to view profile', 'error');
+                return;
+            }
+
+            try {
+                const profile = await apiRequest('/profile/');
+                displayProfile(profile);
+            } catch (error) {
+                showNotification('Failed to load profile', 'error');
+            }
+        }
+
+        function displayProfile(profile) {
+            const profileContent = document.querySelector('.profile-content');
+            if (!profileContent) return;
+
+            profileContent.innerHTML = `
+                <div class="profile-info">
+                    <h2><i class="fas fa-user"></i> Profile Information</h2>
+                    <div class="profile-details">
+                        <p><strong>Name:</strong> ${profile.user?.name || 'Not set'}</p>
+                        <p><strong>Phone:</strong> ${profile.user?.phone || 'Not set'}</p>
+                        <p><strong>Student ID:</strong> ${profile.student_id || 'Not set'}</p>
+                        <p><strong>College:</strong> ${profile.college || 'Not set'}</p>
+                        <p><strong>Department:</strong> ${profile.department || 'Not set'}</p>
+                        <p><strong>Year:</strong> ${profile.year || 'Not set'}</p>
+                        <p><strong>Rating:</strong> ${profile.rating || 'N/A'}</p>
+                    </div>
+                </div>
+            `;
+        }
+
+        // Utility Functions
+        function contactSeller(contactInfo) {
+            if (contactInfo) {
+                navigator.clipboard.writeText(contactInfo).then(() => {
+                    showNotification('Contact info copied to clipboard!', 'success');
+                }).catch(() => {
+                    showNotification('Contact: ' + contactInfo, 'info');
+                });
+            } else {
+                showNotification('No contact information available', 'error');
+            }
+        }
+
+        function formatDate(dateString) {
+            const date = new Date(dateString);
+            return date.toLocaleDateString('en-US', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric'
+            });
+        }
+
+        function showNotification(message, type = 'success') {
+            const container = document.getElementById('notificationContainer');
+            if (!container) return;
+
+            const notification = document.createElement('div');
+            notification.className = `notification ${type}`;
+            notification.innerHTML = `
+                <i class="fas fa-${type === 'success' ? 'check-circle' : type === 'error' ? 'exclamation-circle' : 'info-circle'}"></i>
+                <span>${message}</span>
+            `;
+
+            container.appendChild(notification);
+
+            // Auto remove after 5 seconds
+            setTimeout(() => {
+                notification.remove();
+            }, 5000);
+        }
+
+        // Global functions for onclick handlers
+        window.addToWishlist = async function(noteId) {
+            if (!accessToken) {
+                showNotification('Please login to add to wishlist', 'error');
+                return;
+            }
+
+            try {
+                await apiRequest('/wishlist/add/', {
+                    method: 'POST',
+                    body: JSON.stringify({ note: noteId })
+                });
+                showNotification('Added to wishlist!', 'success');
+            } catch (error) {
+                showNotification('Failed to add to wishlist', 'error');
+            }
+        };
+
+        window.removeFromWishlist = async function(wishlistId) {
+            try {
+                await apiRequest(`/wishlist/${wishlistId}/`, {
+                    method: 'DELETE'
+                });
+                showNotification('Removed from wishlist!', 'success');
+                loadWishlist();
+            } catch (error) {
+                showNotification('Failed to remove from wishlist', 'error');
+            }
+        };
+
+        window.contactSeller = contactSeller;
+    </script>
 </body>
 </html> 
