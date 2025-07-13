@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NotesHub - Professional College Notes Marketplace</title>
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#2563eb">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="NotesHub">
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="nav-container">
+            <a href="#home" class="nav-logo">
+                <i class="fas fa-graduation-cap"></i>
+                <span>NotesHub</span>
+            </a>
+            <div class="nav-menu" id="navMenu">
+                <a href="#home" class="nav-link active">Home</a>
+                <a href="#notes" class="nav-link">Browse Notes</a>
+                <a href="#dashboard" class="nav-link">Dashboard</a>
+                <a href="#wishlist" class="nav-link">Wishlist</a>
+                <a href="#profile" class="nav-link">Profile</a>
+                <button class="login-btn" id="loginBtn">Sign In</button>
+            </div>
+            <div class="nav-toggle" id="navToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Modal -->
+    <div class="modal" id="loginModal">
+        <div class="modal-content">
+            <span class="close" id="closeModal">&times;</span>
+            <div class="modal-header">
+                <h2><i class="fas fa-sign-in-alt"></i> Welcome Back</h2>
+                <p>Sign in to access your account</p>
+            </div>
+            <div class="login-form">
+                <div class="form-group">
+                    <label for="phone">Phone Number</label>
+                    <div class="input-group">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="phone" placeholder="Enter your phone number">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="password" placeholder="Enter your password">
+                    </div>
+                </div>
+                <button id="loginBtn" class="btn btn-primary btn-block">
+                    <i class="fas fa-sign-in-alt"></i> Sign In
+                </button>
+                <div class="form-footer">
+                    <p>Don't have an account? <a href="#" id="showRegister">Create one here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Register Modal -->
+    <div class="modal" id="registerModal">
+        <div class="modal-content">
+            <span class="close" id="closeRegisterModal">&times;</span>
+            <div class="modal-header">
+                <h2><i class="fas fa-user-plus"></i> Join NotesHub</h2>
+                <p>Create your account to start trading notes</p>
+            </div>
+            <div class="register-form">
+                <div class="form-group">
+                    <label for="regPhone">Phone Number</label>
+                    <div class="input-group">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="regPhone" placeholder="Enter your phone number">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regName">Full Name</label>
+                    <div class="input-group">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="regName" placeholder="Enter your full name">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regPassword">Password</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="regPassword" placeholder="Create a password">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="regConfirmPassword">Confirm Password</label>
+                    <div class="input-group">
+                        <i class="fas fa-lock"></i>
+                        <input type="password" id="regConfirmPassword" placeholder="Confirm your password">
+                    </div>
+                </div>
+                <button id="registerBtn" class="btn btn-primary btn-block">
+                    <i class="fas fa-user-plus"></i> Create Account
+                </button>
+                <div class="form-footer">
+                    <p>Already have an account? <a href="#" id="showLogin">Sign in here</a></p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Home Section -->
+        <section id="home" class="section active">
+            <div class="hero">
+                <h1>Transform Your Learning Experience</h1>
+                <p>Connect with fellow students, buy and sell high-quality notes, and accelerate your academic success with our professional marketplace platform.</p>
+                <div class="hero-actions">
+                    <button class="btn btn-primary btn-lg" id="getStartedBtn">
+                        <i class="fas fa-rocket"></i> Get Started
+                    </button>
+                    <button class="btn btn-outline btn-lg" id="learnMoreBtn">
+                        <i class="fas fa-play"></i> Learn More
+                    </button>
+                </div>
+                <div class="hero-stats">
+                    <div class="stat">
+                        <i class="fas fa-users"></i>
+                        <span>10,000+ Students</span>
+                        <small>Active community</small>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-book"></i>
+                        <span>25,000+ Notes</span>
+                        <small>Quality content</small>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-star"></i>
+                        <span>4.9 Rating</span>
+                        <small>Trusted platform</small>
+                    </div>
+                    <div class="stat">
+                        <i class="fas fa-graduation-cap"></i>
+                        <span>500+ Colleges</span>
+                        <small>Wide coverage</small>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Features Section -->
+            <div class="container">
+                <div class="features-section">
+                    <h2>Why Choose NotesHub?</h2>
+                    <div class="features-grid">
+                        <div class="feature-card">
+                            <i class="fas fa-shield-alt"></i>
+                            <h3>Secure & Trusted</h3>
+                            <p>Verified sellers and secure transactions ensure you get quality content every time.</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-search"></i>
+                            <h3>Smart Search</h3>
+                            <p>Advanced filtering and search capabilities help you find exactly what you need.</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-mobile-alt"></i>
+                            <h3>Mobile Ready</h3>
+                            <p>Access your notes anywhere, anytime with our responsive mobile platform.</p>
+                        </div>
+                        <div class="feature-card">
+                            <i class="fas fa-headset"></i>
+                            <h3>24/7 Support</h3>
+                            <p>Our dedicated support team is always here to help you succeed.</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Notes Section -->
+        <section id="notes" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <div>
+                        <h2>Browse Notes</h2>
+                        <p>Discover high-quality study materials from verified students</p>
+                    </div>
+                    <button class="btn btn-primary" id="addNoteBtn">
+                        <i class="fas fa-plus"></i> Add Note
+                    </button>
+                </div>
+                
+                <div class="filters">
+                    <div class="filter-group">
+                        <label>Subject</label>
+                        <select id="subjectFilter">
+                            <option value="">All Subjects</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Semester</label>
+                        <select id="semesterFilter">
+                            <option value="">All Semesters</option>
+                            <option value="1">1st Semester</option>
+                            <option value="2">2nd Semester</option>
+                            <option value="3">3rd Semester</option>
+                            <option value="4">4th Semester</option>
+                            <option value="5">5th Semester</option>
+                            <option value="6">6th Semester</option>
+                            <option value="7">7th Semester</option>
+                            <option value="8">8th Semester</option>
+                        </select>
+                    </div>
+                    <div class="filter-group">
+                        <label>Price Range</label>
+                        <select id="priceFilter">
+                            <option value="">All Prices</option>
+                            <option value="free">Free</option>
+                            <option value="0-100">₹0 - ₹100</option>
+                            <option value="100-500">₹100 - ₹500</option>
+                            <option value="500+">₹500+</option>
+                        </select>
+                    </div>
+                    <div class="filter-group search-group">
+                        <label>Search</label>
+                        <div class="search-input">
+                            <i class="fas fa-search"></i>
+                            <input type="text" id="searchInput" placeholder="Search notes by title, subject, or description...">
+                        </div>
+                    </div>
+                </div>
+
+                <div class="notes-grid" id="notesGrid">
+                    <!-- Notes will be loaded here -->
+                </div>
+                
+                <div class="load-more-container">
+                    <button class="btn btn-outline" id="loadMoreBtn">
+                        <i class="fas fa-plus"></i> Load More Notes
+                    </button>
+                </div>
+            </div>
+        </section>
+
+        <!-- Dashboard Section -->
+        <section id="dashboard" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>Dashboard</h2>
+                    <p>Track your activity and manage your account</p>
+                </div>
+                
+                <div class="dashboard-stats" id="dashboardStats">
+                    <!-- Dashboard stats will be loaded here -->
+                </div>
+                
+                <div class="dashboard-content">
+                    <div class="dashboard-grid">
+                        <div class="dashboard-card">
+                            <h3><i class="fas fa-chart-line"></i> Recent Activity</h3>
+                            <div class="activity-list" id="activityList">
+                                <!-- Activity items will be loaded here -->
+                            </div>
+                        </div>
+                        
+                        <div class="dashboard-card">
+                            <h3><i class="fas fa-star"></i> Top Rated Notes</h3>
+                            <div class="top-notes-list" id="topNotesList">
+                                <!-- Top notes will be loaded here -->
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Wishlist Section -->
+        <section id="wishlist" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>My Wishlist</h2>
+                    <p>Your saved notes for future reference</p>
+                </div>
+                <div class="wishlist-grid" id="wishlistGrid">
+                    <!-- Wishlist items will be loaded here -->
+                </div>
+            </div>
+        </section>
+
+        <!-- Profile Section -->
+        <section id="profile" class="section">
+            <div class="container">
+                <div class="section-header">
+                    <h2>My Profile</h2>
+                    <p>Manage your account and preferences</p>
+                </div>
+                <div class="profile-content" id="profileContent">
+                    <!-- Profile will be loaded here -->
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Add Note Modal -->
+    <div class="modal" id="addNoteModal">
+        <div class="modal-content">
+            <span class="close" id="closeAddNoteModal">&times;</span>
+            <div class="modal-header">
+                <h2><i class="fas fa-plus-circle"></i> Add New Note</h2>
+                <p>Share your knowledge with the community</p>
+            </div>
+            <form id="addNoteForm">
+                <div class="form-group">
+                    <label for="noteTitle">Note Title *</label>
+                    <div class="input-group">
+                        <i class="fas fa-heading"></i>
+                        <input type="text" id="noteTitle" required placeholder="Enter a descriptive title">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="noteSubject">Subject *</label>
+                    <div class="input-group">
+                        <i class="fas fa-book"></i>
+                        <select id="noteSubject" required>
+                            <option value="">Select Subject</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="noteDescription">Description *</label>
+                    <div class="input-group">
+                        <i class="fas fa-align-left"></i>
+                        <textarea id="noteDescription" required placeholder="Describe your note content, topics covered, and any special features..."></textarea>
+                    </div>
+                </div>
+                <div class="form-row">
+                    <div class="form-group">
+                        <label for="noteSemester">Semester *</label>
+                        <div class="input-group">
+                            <i class="fas fa-calendar"></i>
+                            <select id="noteSemester" required>
+                                <option value="">Select Semester</option>
+                                <option value="1">1st Semester</option>
+                                <option value="2">2nd Semester</option>
+                                <option value="3">3rd Semester</option>
+                                <option value="4">4th Semester</option>
+                                <option value="5">5th Semester</option>
+                                <option value="6">6th Semester</option>
+                                <option value="7">7th Semester</option>
+                                <option value="8">8th Semester</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="noteYear">Year *</label>
+                        <div class="input-group">
+                            <i class="fas fa-calendar-alt"></i>
+                            <input type="number" id="noteYear" min="2020" max="2030" required placeholder="2024">
+                        </div>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="notePrice">Price (₹) *</label>
+                    <div class="input-group">
+                        <i class="fas fa-rupee-sign"></i>
+                        <input type="number" id="notePrice" min="0" step="0.01" required placeholder="0.00">
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="noteContact">Contact Information *</label>
+                    <div class="input-group">
+                        <i class="fas fa-phone"></i>
+                        <input type="text" id="noteContact" placeholder="WhatsApp/Telegram/Email" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label for="noteTags">Tags</label>
+                    <div class="input-group">
+                        <i class="fas fa-tags"></i>
+                        <input type="text" id="noteTags" placeholder="Enter tags separated by commas">
+                    </div>
+                </div>
+                <div class="form-group checkbox-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="noteFree">
+                        <span class="checkmark"></span>
+                        This is a free note
+                    </label>
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-outline" id="cancelAddNote">Cancel</button>
+                    <button type="submit" class="btn btn-primary">
+                        <i class="fas fa-plus"></i> Add Note
+                    </button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Notification Container -->
+    <div id="notificationContainer" class="notification-container"></div>
+
+    <script src="script.js"></script>
+</body>
+</html> 
