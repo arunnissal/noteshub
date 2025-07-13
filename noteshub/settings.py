@@ -181,3 +181,9 @@ SIMPLE_JWT = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 AUTH_USER_MODEL = 'marketplace.Account'
+
+# Authentication backends
+AUTHENTICATION_BACKENDS = [
+    'marketplace.backends.PhoneNumberBackend',
+    'django.contrib.auth.backends.ModelBackend',
+]
