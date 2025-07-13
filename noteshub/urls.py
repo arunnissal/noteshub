@@ -2,7 +2,7 @@ from django.contrib import admin
 from django.urls import path, include
 from django.conf import settings
 from django.conf.urls.static import static
-from .views import serve_frontend
+from django.views.generic import TemplateView
 
 urlpatterns = [
     path('admin/', admin.site.urls),                         # Django admin panel
@@ -21,6 +21,6 @@ else:
         # Serve static files in production
         path('static/<path:path>', static_serve, {'document_root': settings.STATIC_ROOT}),
         # Serve frontend files - catch all non-API routes
-        path('', serve_frontend, name='frontend'),
-        path('<path:path>', serve_frontend, name='frontend_catch_all'),
+        path('', TemplateView.as_view(template_name='index.html')),
+        path('<path:path>', TemplateView.as_view(template_name='index.html')),
     ]
